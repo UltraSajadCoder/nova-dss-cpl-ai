@@ -1,0 +1,13 @@
+{
+  "name": "nova-dss-cpl-ai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Nova-DSS CPL Ai \u2014 Draw Your Idea in Reality",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

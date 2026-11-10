@@ -1,0 +1,18 @@
+node_modules/
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
+data/accounts.json
+data/chats/*
+data/shares/*
+!data/chats/.gitkeep
+!data/shares/.gitkeep
+
+# Runtime data: use a Railway Volume mounted at /app/data
+data/*
+!data/chats/
+!data/chats/.gitkeep
+!data/shares/
+!data/shares/.gitkeep
