@@ -17,7 +17,7 @@ try{
  if(req.method==='GET'&&p.startsWith('/shared/'))return staticFile(res,'/shared.html');
  if(p==='/api/register'&&req.method==='POST'||p==='/api/login'&&req.method==='POST'){
   const b=await body(req),name=String(b.username||'').trim(),pw=String(b.password||'');let all=users(),a;
-  if(p.endsWith('register')){if(!/^[a-zA-Z0-9_.-]{3,32}$/.test(name))return reply(res,400,{error:'Username must be 3–32 letters, numbers, dot, underscore or hyphen.'});if(pw.length<8||pw.length>200)return reply(res,400,{error:'Password must be at least 8 characters.'});if(all.some(x=>x.username.toLowerCase()===name.toLowerCase()))return reply(res,409,{error:'Username already exists.'});a={id:uid(name),username:name,password:pass(pw),settings:{assistantName:'Nova AI',theme:'dark',font:'system'}};all.push(a);write(af,all);save(a.id,[])}
+  if(p.endsWith('register')){if(!/^[a-zA-Z0-9_.-]{3,32}$/.test(name))return reply(res,400,{error:'Username must be 3–32 letters, numbers, dot, underscore or hyphen.'});if(pw.length<8||pw.length>200)return reply(res,400,{error:'Password must be at least 8 characters.'});if(all.some(x=>x.username.toLowerCase()===name.toLowerCase()))return reply(res,409,{error:'Username already exists.'});a={id:uid(name),username:name,password:pass(pw),settings:{assistantName:'Nova-DSS CPL Ai',theme:'dark',accentTheme:'purple',language:'en',font:'system'}};all.push(a);write(af,all);save(a.id,[])}
   else {a=all.find(x=>x.username.toLowerCase()===name.toLowerCase());if(!a||!valid(pw,a.password))return reply(res,401,{error:'Incorrect username or password.'})}
   let token=crypto.randomBytes(32).toString('hex');sessions.set(token,{userId:a.id,exp:Date.now()+7*864e5});return reply(res,200,{token,account:pub(a)})
  }
@@ -39,12 +39,12 @@ try{
   return reply(res,200,{ok:true});
  }
  if(p==='/api/chats'&&req.method==='GET')return reply(res,200,{chats:chats(a.id)});
- if(p==='/api/settings'&&req.method==='PUT'){let b=await body(req);a.settings={assistantName:String(b.assistantName||'Nova AI').slice(0,50),theme:['dark','light','system','orange','green','blue','red','white'].includes(b.theme)?b.theme:'dark',font:b.font==='custom'?'custom':'system'};write(af,all);return reply(res,200,{settings:a.settings})}
- if(p==='/api/chats'&&req.method==='POST'){let b=await body(req),cs=chats(a.id),c={id:id(),title:String(b.title||'New chat').slice(0,100),messages:[],pinned:false,archived:false,createdAt:Date.now(),updatedAt:Date.now()};cs.push(c);save(a.id,cs);return reply(res,201,{chat:c})}
+ if(p==='/api/settings'&&req.method==='PUT'){let b=await body(req);a.settings={assistantName:String(b.assistantName||a.settings?.assistantName||'Nova-DSS CPL Ai').slice(0,50),theme:['dark','light'].includes(b.theme)?b.theme:'dark',accentTheme:['purple','orange','green','blue','red','white'].includes(b.accentTheme)?b.accentTheme:'purple',language:['en','fa'].includes(b.language)?b.language:'en',font:b.font==='custom'?'custom':'system'};write(af,all);return reply(res,200,{settings:a.settings})}
+ if(p==='/api/chats'&&req.method==='POST'){let b=await body(req),cs=chats(a.id),c={id:id(),title:String(b.title||'New chat').slice(0,100),messages:[],model:String(b.model||'').slice(0,80),pinned:false,archived:false,createdAt:Date.now(),updatedAt:Date.now()};cs.push(c);save(a.id,cs);return reply(res,201,{chat:c})}
  let m=p.match(/^\/api\/chats\/([a-f0-9]+)(\/share)?$/);
  if(m){let cs=chats(a.id),c=cs.find(x=>x.id===m[1]);if(!c)return reply(res,404,{error:'Chat not found'});
   if(m[2]&&req.method==='POST'){let sid=id();write(path.join(DATA,'shares',sid+'.json'),{owner:a.id,chatId:c.id,title:c.title,messages:c.messages});return reply(res,201,{url:u.origin+'/shared/'+sid})}
-  if(req.method==='PATCH'){let b=await body(req);if(typeof b.title==='string')c.title=b.title.trim().slice(0,100)||'New chat';if(typeof b.pinned==='boolean')c.pinned=b.pinned;if(typeof b.archived==='boolean')c.archived=b.archived;if(Array.isArray(b.messages))c.messages=b.messages;c.updatedAt=Date.now();save(a.id,cs);return reply(res,200,{chat:c})}
+  if(req.method==='PATCH'){let b=await body(req);if(typeof b.title==='string')c.title=b.title.trim().slice(0,100)||'New chat';if(typeof b.model==='string')c.model=b.model.slice(0,80);if(typeof b.pinned==='boolean')c.pinned=b.pinned;if(typeof b.archived==='boolean')c.archived=b.archived;if(Array.isArray(b.messages))c.messages=b.messages;c.updatedAt=Date.now();save(a.id,cs);return reply(res,200,{chat:c})}
   if(req.method==='DELETE'){save(a.id,cs.filter(x=>x.id!==c.id));for(let f of fs.readdirSync(path.join(DATA,'shares'))){let sh=read(path.join(DATA,'shares',f),null);if(sh&&sh.owner===a.id&&sh.chatId===c.id)fs.rmSync(path.join(DATA,'shares',f),{force:true})}return reply(res,200,{ok:true})}
  }
  return reply(res,404,{error:'API endpoint not found'})
