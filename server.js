@@ -1,4 +1,10 @@
 const http=require('http'),fs=require('fs'),path=require('path'),crypto=require('crypto');
+const {init: initPuter}=require('@heyputer/puter.js/src/init.cjs');
+const PUTER_TOKEN=process.env.PUTER_AUTH_TOKEN||'';
+let puter=null;
+function getPuter(){if(!PUTER_TOKEN)throw Error('AI service is not configured. Add PUTER_AUTH_TOKEN to Railway Variables.');if(!puter)puter=initPuter(PUTER_TOKEN);return puter;}
+const aiUsage=new Map();
+function checkAiLimit(userId){const now=Date.now(),entry=aiUsage.get(userId)||{start:now,count:0};if(now-entry.start>60000){entry.start=now;entry.count=0}if(entry.count>=20)throw Error('Rate limit reached. Please wait one minute before trying again.');entry.count++;aiUsage.set(userId,entry);}
 const ROOT=__dirname,PUB=path.join(ROOT,'public'),DATA=path.join(ROOT,'data'),PORT=process.env.PORT||3000,HOST=process.env.HOST||'0.0.0.0',sessions=new Map();
 for(const d of [DATA,path.join(DATA,'chats'),path.join(DATA,'shares'),path.join(ROOT,'fonts')])fs.mkdirSync(d,{recursive:true});
 const af=path.join(DATA,'accounts.json');if(!fs.existsSync(af))fs.writeFileSync(af,'[]');
@@ -20,6 +26,21 @@ try{
   if(p.endsWith('register')){if(!/^[a-zA-Z0-9_.-]{3,32}$/.test(name))return reply(res,400,{error:'Username must be 3–32 letters, numbers, dot, underscore or hyphen.'});if(pw.length<8||pw.length>200)return reply(res,400,{error:'Password must be at least 8 characters.'});if(all.some(x=>x.username.toLowerCase()===name.toLowerCase()))return reply(res,409,{error:'Username already exists.'});a={id:uid(name),username:name,password:pass(pw),settings:{assistantName:'Nova-DSS CPL Ai',theme:'dark',accentTheme:'purple',language:'en',font:'system'}};all.push(a);write(af,all);save(a.id,[])}
   else {a=all.find(x=>x.username.toLowerCase()===name.toLowerCase());if(!a||!valid(pw,a.password))return reply(res,401,{error:'Incorrect username or password.'})}
   let token=crypto.randomBytes(32).toString('hex');sessions.set(token,{userId:a.id,exp:Date.now()+7*864e5});return reply(res,200,{token,account:pub(a)})
+ }
+ if(p==='/api/ai/chat'&&req.method==='POST'){
+  if(!session)return reply(res,401,{error:'Please sign in'});
+  checkAiLimit(session.userId);const b=await body(req);if(!Array.isArray(b.messages)||!b.messages.length)return reply(res,400,{error:'Messages are required'});
+  if(!PUTER_TOKEN)return reply(res,503,{error:'AI service is not configured. Add PUTER_AUTH_TOKEN to Railway Variables.'});
+  const model=String(b.model||'gpt-4o-mini').slice(0,100);
+  const upstream=await fetch('https://api.puter.com/puterai/openai/v1/chat/completions',{method:'POST',headers:{'Authorization':'Bearer '+PUTER_TOKEN,'Content-Type':'application/json'},body:JSON.stringify({model,messages:b.messages,stream:true})});
+  if(!upstream.ok){const err=await upstream.text();return reply(res,upstream.status,{error:'Puter AI error: '+err.slice(0,1000)})}
+  res.writeHead(200,{'Content-Type':'text/event-stream; charset=utf-8','Cache-Control':'no-cache, no-transform','Connection':'keep-alive','X-Accel-Buffering':'no'});
+  const reader=upstream.body.getReader();const decoder=new TextDecoder();let carry='';
+  try{while(true){const {done,value}=await reader.read();if(done)break;carry+=decoder.decode(value,{stream:true});const lines=carry.split('\n');carry=lines.pop()||'';for(const line of lines){if(!line.startsWith('data:'))continue;const raw=line.slice(5).trim();if(!raw||raw==='[DONE]')continue;try{const item=JSON.parse(raw),delta=item.choices?.[0]?.delta?.content;if(typeof delta==='string'&&delta)res.write('data: '+JSON.stringify({type:'text',text:delta})+'\n\n');else if(Array.isArray(delta)){for(const part of delta)if(part.type==='text'&&part.text)res.write('data: '+JSON.stringify({type:'text',text:part.text})+'\n\n')}}catch{}}}res.write('data: [DONE]\n\n')}catch(e){if(!res.destroyed)res.write('data: '+JSON.stringify({type:'error',message:e.message})+'\n\n')}finally{if(!res.destroyed)res.end()}return;
+ }
+ if(p==='/api/ai/image'&&req.method==='POST'){
+  if(!session)return reply(res,401,{error:'Please sign in'});checkAiLimit(session.userId);const b=await body(req),prompt=String(b.prompt||'').trim();if(!prompt||prompt.length>12000)return reply(res,400,{error:'Please provide an image prompt under 12,000 characters.'});
+  const result=await getPuter().ai.txt2img(prompt,{model:String(b.model||'gpt-image-2.6-flare')});const src=result?.src||String(result||'');if(!src)return reply(res,502,{error:'Puter did not return an image.'});return reply(res,200,{src});
  }
  if(p.startsWith('/api/share/')&&req.method==='GET'){let s=read(path.join(DATA,'shares',path.basename(p)+'.json'),null);return s?reply(res,200,{title:s.title,messages:s.messages}):reply(res,404,{error:'Share not found or revoked'})}
  if(!p.startsWith('/api/'))return req.method==='GET'?staticFile(res,p):reply(res,405,{error:'Method not allowed'});
