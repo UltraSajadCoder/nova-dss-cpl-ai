@@ -8,9 +8,6 @@
     "start": "node server.js"
   },
   "engines": {
-    "node": ">=24"
-  },
-  "dependencies": {
-    "@heyputer/puter.js": "*"
+    "node": ">=18"
   }
 }
