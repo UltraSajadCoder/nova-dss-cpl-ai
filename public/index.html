@@ -500,6 +500,123 @@ body:not(.light).theme-white{color-scheme:dark;--bg:#111318;--side:#191c23;--pan
 .copy:hover{border-color:var(--accent);color:var(--text);background:color-mix(in srgb,var(--accent) 9%,transparent);}
 @media(max-width:560px){.choice-item{min-height:42px;padding:9px 11px}.choice-list{gap:7px}#chatlist{padding-right:10px}}
 
+
+
+/* ===== V11: stable selection panels, clear chat-menu hover, scale-only button hover ===== */
+/* Give selectable dialogs enough horizontal breathing room. Transformed rows must never
+   create a horizontal scrollbar inside the modal. */
+.modal:has(.choice-list){
+  width:min(490px,calc(100vw - 32px))!important;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+  padding:22px!important;
+}
+.modal:has(.choice-list) #mbody{
+  width:100%;min-width:0;overflow-x:hidden!important;overflow-y:visible!important;
+  padding:2px 3px 5px;
+}
+.choice-list{
+  display:flex!important;flex-direction:column!important;align-items:stretch;
+  width:calc(100% - 16px)!important;max-width:100%;min-width:0;
+  margin:4px auto 8px!important;padding:7px 8px 10px!important;
+  gap:7px!important;overflow:visible!important;
+}
+.choice-item,.choice-trigger{
+  box-sizing:border-box!important;min-width:0;max-width:100%;
+  transform-origin:center;will-change:transform;
+}
+.choice-item{min-height:40px;padding:9px 12px!important}
+.choice-item:hover{
+  transform:scale(1.008)!important;
+  background:var(--panel)!important;border-color:var(--line)!important;
+  box-shadow:none!important;
+}
+.choice-item.selected,.choice-item.selected:hover{
+  background:color-mix(in srgb,var(--accent) 16%,var(--panel))!important;
+  border-color:var(--accent)!important;
+  box-shadow:inset 3px 0 var(--accent)!important;
+}
+.choice-trigger:hover{
+  transform:scale(1.008)!important;background:var(--panel)!important;
+  border-color:var(--line)!important;box-shadow:none!important;
+}
+
+/* Chat action menu: the hovered command has a distinct, softly bordered hit area. */
+.menu{padding:8px!important;overflow:visible!important}
+.menu button{
+  min-height:37px!important;margin:1px 0!important;padding:9px 10px!important;
+  border:1px solid transparent!important;border-radius:8px!important;
+  transform-origin:center;transition:transform .16s ease,background-color .16s ease,border-color .16s ease!important;
+}
+.menu button:hover{
+  background:var(--hover)!important;
+  border-color:var(--line)!important;
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--text) 5%,transparent)!important;
+  color:var(--text)!important;transform:scale(1.015)!important;
+}
+.menu button.danger:hover{color:var(--danger)!important}
+
+/* All other controls keep their original theme colors on hover; only their size changes. */
+button{
+  -webkit-tap-highlight-color:transparent;
+  transition:transform .16s ease!important;
+}
+button:hover{transform:scale(1.035)!important;filter:none!important}
+.btn:hover{
+  background:var(--panel)!important;border-color:var(--line)!important;
+  box-shadow:0 2px 7px #00000014,inset 0 1px 0 #ffffff0a!important;
+  color:var(--text)!important;
+}
+.new:hover{
+  background:linear-gradient(115deg,color-mix(in srgb,var(--accent) 16%,var(--panel)),var(--panel))!important;
+}
+.genbtn:hover{
+  background:linear-gradient(145deg,color-mix(in srgb,var(--panel) 94%,white 6%),var(--panel))!important;
+  border-color:var(--line)!important;box-shadow:0 2px 7px #00000014,inset 0 1px 0 #ffffff0a!important;
+  color:var(--text)!important;
+}
+.deepthink:hover{
+  background:color-mix(in srgb,var(--accent) 12%,var(--panel))!important;
+  border-color:color-mix(in srgb,var(--accent) 48%,var(--line))!important;
+  box-shadow:0 3px 12px var(--ui-glow)!important;color:var(--text)!important;
+}
+.deepthink.active:hover{background:var(--accent)!important;color:white!important}
+.send:hover{
+  background:linear-gradient(145deg,color-mix(in srgb,var(--accent) 82%,white 18%),var(--accent))!important;
+  box-shadow:0 5px 16px var(--ui-glow),inset 0 1px 0 #ffffff80!important;
+}
+.idea:hover{
+  background:linear-gradient(145deg,color-mix(in srgb,var(--side) 95%,var(--accent) 5%),var(--side))!important;
+  border-color:var(--line)!important;box-shadow:0 4px 14px #00000012,inset 0 1px 0 #ffffff08!important;
+}
+.primary:hover,.welcome .welcome-ok:hover{
+  background:linear-gradient(135deg,color-mix(in srgb,var(--accent) 78%,white 22%),var(--accent))!important;
+  box-shadow:0 5px 16px var(--ui-glow),inset 0 1px 0 #ffffff80!important;
+}
+.copy:hover,.codecopy:hover,.image-tools button:hover{
+  background:transparent!important;border-color:var(--line)!important;color:var(--muted)!important;
+}
+.dots:hover,.openchat:hover{
+  background:transparent!important;color:var(--muted)!important;
+}
+.select:hover{border-color:var(--line)!important}
+.rowchat:hover{background:transparent!important;border-color:transparent!important;transform:none!important}
+.rowchat.active:hover{background:var(--hover)!important;border-color:color-mix(in srgb,var(--accent) 34%,var(--line))!important}
+@media(max-width:700px){
+  button:hover{transform:scale(1.025)!important}
+  .menu button:hover{transform:scale(1.01)!important}
+  .choice-list{width:calc(100% - 12px)!important;padding-inline:6px!important}
+}
+
+
+/* Final precedence: keep compact hover scaling on popup rows and preserve special button fills. */
+.choice-item:hover{transform:scale(1.008)!important;background:var(--panel)!important;border-color:var(--line)!important;box-shadow:none!important}
+.choice-item.selected:hover{background:color-mix(in srgb,var(--accent) 16%,var(--panel))!important;border-color:var(--accent)!important;box-shadow:inset 3px 0 var(--accent)!important}
+.choice-trigger:hover{transform:scale(1.008)!important;background:var(--panel)!important;border-color:var(--line)!important;box-shadow:none!important}
+.menu button:hover{transform:scale(1.015)!important;background:var(--hover)!important;border-color:var(--line)!important}
+.new:hover{border-color:color-mix(in srgb,var(--accent) 38%,var(--line))!important}
+.danger-action:hover{background:#8f252e!important;border-color:#c84450!important;color:#fff!important}
+
 </style><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script></head><body><div class="app" id="appRoot"><div class="drawer-shade" id="drawerShade"></div>
 <aside class="side" id="side"><div class="brand"><div class="logo"><img src="/nova-icon.png" alt="Nova-DSS CPL Ai"></div><div class="brand-copy"><strong id="brand">Nova-DSS CPL Ai</strong><div class="sub" id="tagline">Draw Your Idea in Reality</div></div><button class="btn icon drawer-close" id="drawerClose" type="button" aria-label="Close menu">☰</button></div><button class="btn new" id="new"><span class="plus">＋</span> New chat</button>
 <div><div class="label">PINNED</div><div class="lists" id="pinned"></div></div><div style="flex:1;min-height:30px;display:flex;flex-direction:column;overflow:hidden"><div class="label">CHATS</div><div class="lists" id="chatlist"></div></div><div><div class="label">ARCHIVE</div><div class="lists" id="archive"></div></div>
