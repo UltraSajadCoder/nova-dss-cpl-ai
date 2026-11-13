@@ -26,6 +26,15 @@ try{
  const session=auth(req);if(!session)return reply(res,401,{error:'Please sign in'});let all=users(),a=all.find(x=>x.id===session.userId);if(!a)return reply(res,401,{error:'Account not found'});
  if(p==='/api/logout'&&req.method==='POST'){sessions.delete((req.headers.authorization||'').replace(/^Bearer\s+/i,''));return reply(res,200,{ok:true})}
  if(p==='/api/me'&&req.method==='GET')return reply(res,200,{account:pub(a)});
+ if(p==='/api/account'&&req.method==='DELETE'){
+  const owner=a.id;
+  write(af,all.filter(x=>x.id!==owner));
+  const chatFile=cf(owner);if(fs.existsSync(chatFile))fs.rmSync(chatFile,{force:true});
+  const shareDir=path.join(DATA,'shares');
+  for(const f of fs.readdirSync(shareDir)){const sh=read(path.join(shareDir,f),null);if(sh&&sh.owner===owner)fs.rmSync(path.join(shareDir,f),{force:true})}
+  for(const [key,value] of sessions.entries())if(value.userId===owner)sessions.delete(key);
+  return reply(res,200,{ok:true});
+ }
  if(p==='/api/account'&&req.method==='PATCH'){
   const b=await body(req),name=String(b.username||'').trim();
   if(!/^[a-zA-Z0-9_.-]{3,32}$/.test(name))return reply(res,400,{error:'Username must be 3–32 letters, numbers, dot, underscore or hyphen.'});
@@ -39,7 +48,7 @@ try{
   return reply(res,200,{ok:true});
  }
  if(p==='/api/chats'&&req.method==='GET')return reply(res,200,{chats:chats(a.id)});
- if(p==='/api/settings'&&req.method==='PUT'){let b=await body(req);a.settings={assistantName:String(b.assistantName||a.settings?.assistantName||'Nova-DSS CPL Ai').slice(0,50),theme:['dark','light'].includes(b.theme)?b.theme:'dark',accentTheme:['purple','orange','green','blue','red','white'].includes(b.accentTheme)?b.accentTheme:'purple',language:['en','fa'].includes(b.language)?b.language:'en',font:b.font==='custom'?'custom':'system'};write(af,all);return reply(res,200,{settings:a.settings})}
+ if(p==='/api/settings'&&req.method==='PUT'){let b=await body(req);a.settings={assistantName:String(b.assistantName||a.settings?.assistantName||'Nova-DSS CPL Ai').slice(0,50),theme:['dark','light'].includes(b.theme)?b.theme:'dark',accentTheme:['purple','orange','green','blue','red','white'].includes(b.accentTheme)?b.accentTheme:'purple',language:['en','fa'].includes(b.language)?b.language:'en',font:['main','custom'].includes(b.font)?'main':'system'};write(af,all);return reply(res,200,{settings:a.settings})}
  if(p==='/api/chats'&&req.method==='POST'){let b=await body(req),cs=chats(a.id),c={id:id(),title:String(b.title||'New chat').slice(0,100),messages:[],model:String(b.model||'').slice(0,80),pinned:false,archived:false,createdAt:Date.now(),updatedAt:Date.now()};cs.push(c);save(a.id,cs);return reply(res,201,{chat:c})}
  let m=p.match(/^\/api\/chats\/([a-f0-9]+)(\/share)?$/);
  if(m){let cs=chats(a.id),c=cs.find(x=>x.id===m[1]);if(!c)return reply(res,404,{error:'Chat not found'});
