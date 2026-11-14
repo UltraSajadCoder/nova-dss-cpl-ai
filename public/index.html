@@ -646,11 +646,14 @@ button:hover{transform:scale(1.035)!important;filter:none!important}
 
 /* V15 profile, mobile context-menu and About experience */
 .sidebottom{position:relative}
-.profile-trigger{width:100%;min-height:54px;display:flex;align-items:center;gap:10px;text-align:start;padding:8px 12px;border-radius:13px;direction:inherit}
+.profile-bar{width:100%;min-height:62px;display:flex;align-items:center;gap:8px;padding:7px 9px;border:1px solid var(--line);border-radius:15px;background:linear-gradient(145deg,color-mix(in srgb,var(--panel) 94%,white 6%),var(--panel));box-shadow:0 2px 7px #00000014,inset 0 1px 0 #ffffff0a;direction:ltr}
+.profile-info{flex:1;min-width:0;min-height:46px;display:flex;align-items:center;gap:11px;padding:0 2px;direction:ltr;pointer-events:none;user-select:text}
+.profile-trigger{width:42px;height:44px;min-width:42px;flex:0 0 42px;display:flex;align-items:center;justify-content:center;padding:0;border-radius:11px;direction:ltr;touch-action:manipulation}
 .profile-avatar{width:38px;height:38px;flex:0 0 38px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,var(--accent),color-mix(in srgb,var(--accent) 45%,#38bdf8));color:#171522;font-weight:850;font-size:18px;box-shadow:0 0 0 2px color-mix(in srgb,var(--accent) 22%,transparent)}
-.profile-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700;text-align:start}
-.profile-more{margin-inline-start:auto;width:32px;height:32px;flex:0 0 32px;display:flex;align-items:center;justify-content:center;align-self:center;border-radius:9px;color:var(--muted);font-size:29px;font-weight:800;line-height:1;letter-spacing:0;transform:translateY(-1px)}
-.profile-menu{position:absolute;left:0;right:0;bottom:calc(100% + 9px);width:auto;z-index:120;display:grid;gap:3px;padding:7px;border-radius:13px;box-shadow:0 16px 40px #0008}
+.profile-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700;text-align:start;color:var(--text)}
+.profile-more{width:32px;height:32px;flex:0 0 32px;display:flex;align-items:center;justify-content:center;border-radius:9px;color:var(--muted);font-size:29px;font-weight:800;line-height:1;letter-spacing:0;transform:none}
+.profile-trigger:hover .profile-more{color:var(--text)}
+.profile-menu{position:absolute;left:0;right:0;bottom:calc(100% + 9px);width:100%;z-index:120;display:grid;gap:3px;padding:7px;border-radius:13px;box-shadow:0 16px 40px #0008}
 .profile-menu.hidden{display:none!important}
 .profile-menu-item{width:100%;display:flex;align-items:center;gap:12px;padding:11px 12px;min-height:48px;border:0;border-radius:9px;background:transparent;color:var(--text);text-align:start;font-weight:650}
 .profile-menu-item:hover{background:var(--hover)}
@@ -670,12 +673,23 @@ button:hover{transform:scale(1.035)!important;filter:none!important}
 .about-section li{margin:6px 0}
 .about-foot{border-top:1px solid var(--line);padding-top:12px;font-weight:700;text-align:center!important}
 .danger-action{color:var(--danger)!important;border-color:color-mix(in srgb,var(--danger) 45%,var(--line))!important}
-@media(max-width:700px){.chat-context-menu{z-index:1000}.profile-trigger{min-height:56px}.about-content{max-height:none;overflow:visible}.about-section{font-size:13px}}
+@media(max-width:700px){.chat-context-menu{z-index:1000}.profile-bar{min-height:62px}.profile-trigger{min-height:44px}.about-content{max-height:none;overflow:visible}.about-section{font-size:13px}}
 
+
+/* Ensure every red/destructive action button has readable white text. */
+button.danger-action,
+button.danger-action:hover,
+button.danger-action:focus,
+button.danger-action:active,
+.btn.danger-action,
+.menu button.danger-action {
+  color:#fff!important;
+  -webkit-text-fill-color:#fff!important;
+}
 </style><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script></head><body><div class="app" id="appRoot"><div class="drawer-shade" id="drawerShade"></div>
 <aside class="side" id="side"><div class="brand"><div class="logo"><img src="/nova-icon.png" alt="Nova-DSS CPL Ai"></div><div class="brand-copy"><strong id="brand">Nova-DSS CPL Ai</strong><div class="sub" id="tagline">Draw Your Idea in Reality</div></div><button class="btn icon drawer-close" id="drawerClose" type="button" aria-label="Close menu"><span class="hamb-icon" aria-hidden="true"><i></i><i></i><i></i></span></button></div><button class="btn new" id="new"><span class="plus">＋</span> New chat</button>
 <div><div class="label">PINNED</div><div class="lists" id="pinned"></div></div><div style="flex:1;min-height:30px;display:flex;flex-direction:column;overflow:hidden"><div class="label">CHATS</div><div class="lists" id="chatlist"></div></div><div><div class="label">ARCHIVE</div><div class="lists" id="archive"></div></div>
-<div class="sidebottom"><button class="btn profile-trigger" id="profileTrigger" type="button" aria-haspopup="menu" aria-expanded="false"><span class="profile-avatar" id="profileAvatar">Y</span><span class="profile-name" id="who">Not signed in</span><span class="profile-more" aria-hidden="true">⋮</span></button><div class="profile-menu menu hidden" id="profileMenu" role="menu"></div><button class="btn hidden" id="account" type="button">Sign in</button></div></aside>
+<div class="sidebottom"><div class="profile-bar"><div class="profile-info" id="profileInfo"><span class="profile-avatar" id="profileAvatar">Y</span><span class="profile-name" id="who">Not signed in</span></div><button class="btn profile-trigger" id="profileTrigger" type="button" aria-label="Account menu" aria-haspopup="menu" aria-expanded="false"><span class="profile-more" aria-hidden="true">⋮</span></button></div><div class="profile-menu menu hidden" id="profileMenu" role="menu"></div><button class="btn hidden" id="account" type="button">Sign in</button></div></aside>
 <main class="main"><header class="top"><div style="display:flex;align-items:center;gap:9px;min-width:0"><button class="btn icon" id="hamb" aria-label="Open menu"><span class="hamb-icon" aria-hidden="true"><i></i><i></i><i></i></span></button><div class="topname" id="topname">New chat</div></div><div class="actions"><button class="btn select" id="modelBtn" type="button" aria-haspopup="dialog">GPT-4o mini ▾</button></div></header>
 <section class="messages" id="messages"><div class="inner" id="inner"></div></section><div class="composearea"><div class="composewrap"><div class="compose"><svg class="neon-tracer" viewBox="0 0 1000 240" preserveAspectRatio="none" aria-hidden="true">
 <defs>
@@ -739,6 +753,7 @@ function avatarInitial(username){
 function updateAccount(){
   const username=account?account.username:'';
   $('who').textContent=account?username:(lang==='fa'?'وارد نشده‌اید':'Not signed in');
+  $('profileInfo').setAttribute('dir',lang==='fa'?'rtl':'ltr');
   $('profileAvatar').textContent=account?avatarInitial(username):'Y';
   $('profileTrigger').setAttribute('aria-label',lang==='fa'?'منوی حساب کاربری':'Account menu');
 }
@@ -813,16 +828,3 @@ async function boot(){const migrateMainFont=!localStorage.getItem('nova-main-fon
 document.addEventListener('click',e=>{if(!e.target.closest('.dots')&&!e.target.closest('.chat-context-menu'))document.querySelectorAll('.chat-context-menu').forEach(x=>x.remove());if(!e.target.closest('#profileTrigger')&&!e.target.closest('#profileMenu'))closeProfileMenu()});window.addEventListener('resize',()=>document.querySelectorAll('.menu').forEach(x=>x.remove()));document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.querySelectorAll('.menu').forEach(x=>x.remove());document.querySelectorAll('.image-viewer').forEach(x=>x.remove());if(busy)controller?.abort()}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();newChat()}});boot();
 })();
 </script></body></html>
-/* V17: readable white labels on every destructive action button */
-.btn.danger-action,
-.btn.danger-action:hover,
-.btn.danger-action:focus,
-.btn.danger-action:active,
-button.danger-action,
-button.danger-action:hover,
-button.danger-action:focus {
-  color: #fff !important;
-  -webkit-text-fill-color: #fff !important;
-  background-color: #8f252e !important;
-  border-color: #c84450 !important;
-}
