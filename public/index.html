@@ -699,6 +699,21 @@ button:hover{transform:scale(1.035)!important;filter:none!important}
 #profileMenu .signout-item{border-top:1px solid var(--line);margin-top:4px;padding-top:13px}
 #profileTrigger{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 
+
+/* V17 FIX: keep destructive-action labels white in every interaction state. */
+.btn.danger-action,
+.btn.danger-action:hover,
+.btn.danger-action:focus,
+.btn.danger-action:focus-visible,
+.btn.danger-action:active,
+button.danger-action,
+button.danger-action:hover,
+button.danger-action:focus,
+button.danger-action:focus-visible,
+button.danger-action:active {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
 </style><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/github-dark.min.css"><script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script></head><body><div class="app" id="appRoot"><div class="drawer-shade" id="drawerShade"></div>
 <aside class="side" id="side"><div class="brand"><div class="logo"><img src="/nova-icon.png" alt="Nova-DSS CPL Ai"></div><div class="brand-copy"><strong id="brand">Nova-DSS CPL Ai</strong><div class="sub" id="tagline">Draw Your Idea in Reality</div></div><button class="btn icon drawer-close" id="drawerClose" type="button" aria-label="Close menu"><span class="hamb-icon" aria-hidden="true"><i></i><i></i><i></i></span></button></div><button class="btn new" id="new"><span class="plus">＋</span> New chat</button>
 <div><div class="label">PINNED</div><div class="lists" id="pinned"></div></div><div style="flex:1;min-height:30px;display:flex;flex-direction:column;overflow:hidden"><div class="label">CHATS</div><div class="lists" id="chatlist"></div></div><div><div class="label">ARCHIVE</div><div class="lists" id="archive"></div></div>
@@ -885,16 +900,3 @@ window.addEventListener('scroll',()=>{if(!$('profileMenu').classList.contains('h
 document.addEventListener('keydown',e=>{if(e.key==='Escape'){document.querySelectorAll('.menu:not(#profileMenu)').forEach(x=>x.remove());closeProfileMenu();document.querySelectorAll('.image-viewer').forEach(x=>x.remove());if(busy)controller?.abort()}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==='k'){e.preventDefault();newChat()}});boot();
 })();
 </script></body></html>
-/* V17: readable white labels on every destructive action button */
-.btn.danger-action,
-.btn.danger-action:hover,
-.btn.danger-action:focus,
-.btn.danger-action:active,
-button.danger-action,
-button.danger-action:hover,
-button.danger-action:focus {
-  color: #fff !important;
-  -webkit-text-fill-color: #fff !important;
-  background-color: #8f252e !important;
-  border-color: #c84450 !important;
-}
